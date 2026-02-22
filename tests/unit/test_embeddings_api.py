@@ -212,7 +212,7 @@ def test_embeddings_backend_unavailable_returns_503():
         assert body["error"]["message"] == "Embedding backend is unavailable."
 
 
-def test_embeddings_backend_timeout_returns_503(monkeypatch):
+def test_embeddings_backend_timeout_returns_504(monkeypatch):
     class SlowBackend:
         name = "slow"
         model_name = "nomic-ai/nomic-embed-text-v1.5"
@@ -234,9 +234,9 @@ def test_embeddings_backend_timeout_returns_503(monkeypatch):
             "/v1/embeddings",
             json={"model": "nomic-embed-text", "input": "hello"},
         )
-        assert response.status_code == 503
+        assert response.status_code == 504
         body = response.json()
-        assert body["error"]["code"] == "upstream_error"
+        assert body["error"]["code"] == "upstream_timeout"
         assert body["error"]["message"] == "Embedding backend timed out."
 
 

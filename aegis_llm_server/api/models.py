@@ -71,6 +71,7 @@ class ErrorPayload(BaseModel):
     code: Literal[
         "invalid_request",
         "upstream_error",
+        "upstream_timeout",
         "internal",
     ]
     message: str

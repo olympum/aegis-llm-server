@@ -1,58 +1,105 @@
 .TH AEGIS-LLM-SERVER 1 "2026-02-22" "aegis-llm-server" "User Commands"
 .SH NAME
-aegis-llm-server \- OpenAI-compatible local model server (embeddings-first)
+aegis-llm-server \- OpenAI-compatible local embeddings server
 .SH SYNOPSIS
 .B aegis-llm-server
-[
-.B --host
-.I HOST
-]
-[
-.B --port
-.I PORT
-]
 .SH DESCRIPTION
 .B aegis-llm-server
-serves local model capabilities over HTTP, currently focused on embeddings.
-Gateway routing, policy, and provider abstraction remain in
-.BR aegis-llm-proxy .
+serves local embeddings over HTTP with an OpenAI-compatible embeddings API.
+It is intentionally embeddings-first and does not implement chat/completions.
+.PP
+The process reads configuration from environment variables and starts a FastAPI/uvicorn server.
 .SH ENDPOINTS
 .TP
 .B GET /health
-Service health and backend readiness.
+Service health and embedding backend readiness.
 .TP
 .B GET /v1/models
 List advertised embedding model aliases.
 .TP
 .B POST /v1/embeddings
-Generate embeddings using local backend(s).
+Generate embeddings using the configured local backend.
+.SH INPUT/OUTPUT MODEL
+.B aegis-llm-server
+is an HTTP server process:
+.TP
+.B STDIN
+Not used by default.
+.TP
+.B STDOUT
+Runtime logs (subject to process manager/log configuration).
+.TP
+.B STDERR
+Startup failures, diagnostics, and error logs.
+.SH INSTALLATION
+.TP
+Core install:
+.EX
+pip install -e ".[dev]"
+.EE
+.TP
+Optional local model backend:
+.EX
+pip install -e ".[local]"
+.EE
+.SH RUN
+.TP
+Run packaged entrypoint:
+.EX
+aegis-llm-server
+.EE
+.TP
+Run via uvicorn module path:
+.EX
+uvicorn aegis_llm_server.main:app --host 0.0.0.0 --port 8181
+.EE
 .SH CONFIGURATION
 Environment prefix:
 .BR AEGIS_LLM_SERVER_ .
+Nested settings use
+.B __
+(double underscore) delimiters.
+.SH SERVER
 .TP
 .B AEGIS_LLM_SERVER_SERVER__HOST
 Bind host (default:
-.BR 0.0.0.0 )
+.BR 0.0.0.0 ).
 .TP
 .B AEGIS_LLM_SERVER_SERVER__PORT
 Bind port (default:
-.BR 8181 )
+.BR 8181 ).
+.TP
+.B PORT
+Process-level port override when set.
+.SH EMBEDDING BACKEND
 .TP
 .B AEGIS_LLM_SERVER_EMBEDDING__ENABLED
 Enable embeddings backend (default:
-.BR true )
+.BR true ).
 .TP
 .B AEGIS_LLM_SERVER_EMBEDDING__BACKEND
-Backend implementation (for example
-.B deterministic
+Backend implementation:
+.BR deterministic
 or
-.BR sentence_transformers ).
+.BR sentence_transformers
+(default:
+.BR deterministic ).
 .TP
 .B AEGIS_LLM_SERVER_EMBEDDING__MODEL_NAME
-Default embedding model identifier.
+Configured backend model identifier (default:
+.BR nomic-ai/nomic-embed-text-v1.5 ).
+.TP
+.B AEGIS_LLM_SERVER_EMBEDDING__DIMENSION
+Embedding dimension for deterministic backend (default:
+.BR 768 ).
+.TP
+.B AEGIS_LLM_SERVER_EMBEDDING__NORMALIZE
+Whether vectors are normalized (default:
+.BR true ).
+.SH HARDENING LIMITS
 .TP
 .B AEGIS_LLM_SERVER_EMBEDDING__MAX_BATCH_SIZE
-Maximum number of input strings accepted per embeddings request (default:
+Maximum number of input strings per request (default:
 .BR 64 ).
 .TP
 .B AEGIS_LLM_SERVER_EMBEDDING__MAX_INPUT_CHARS
@@ -60,46 +107,110 @@ Maximum character length per input string (default:
 .BR 32768 ).
 .TP
 .B AEGIS_LLM_SERVER_EMBEDDING__MAX_TOTAL_CHARS
-Maximum total character length across all input strings in one request (default:
+Maximum total input characters across request (default:
 .BR 262144 ).
 .TP
 .B AEGIS_LLM_SERVER_EMBEDDING__BACKEND_TIMEOUT_SECONDS
-Maximum time to wait for backend embedding generation before returning upstream error (default:
+Maximum backend call time before timeout response (default:
 .BR 30 ).
+.SH TELEMETRY (OPTIONAL)
 .TP
 .B AEGIS_LLM_SERVER_TELEMETRY__ENABLED
-Enable OpenTelemetry tracing export (default:
+Enable OpenTelemetry traces and metrics export (default:
 .BR false ).
 .TP
 .B AEGIS_LLM_SERVER_TELEMETRY__OTLP_ENDPOINT
-OTLP collector base URL or traces URL (default:
+OTLP HTTP collector base URL (default:
 .BR http://127.0.0.1:4318 ).
 .TP
 .B AEGIS_LLM_SERVER_TELEMETRY__OTLP_TIMEOUT_SECONDS
-OTLP export timeout in seconds (default:
+Export timeout in seconds (default:
 .BR 10 ).
 .TP
 .B AEGIS_LLM_SERVER_TELEMETRY__METRICS_EXPORT_INTERVAL_MS
-Metrics export interval in milliseconds (default:
+Periodic metrics export interval in milliseconds (default:
 .BR 5000 ).
 .TP
 .B AEGIS_LLM_SERVER_TELEMETRY__SAMPLE_RATIO
-Trace sampling ratio between
-.BR 0.0
-and
-.BR 1.0
+Trace sampling ratio in
+.BR [0.0,1.0]
 (default:
 .BR 1.0 ).
-.SH CONTRACT
-See:
+.TP
+.B AEGIS_LLM_SERVER_TELEMETRY__OTLP_HEADERS__<NAME>
+Optional OTLP HTTP header map.
+.SH ERROR SEMANTICS
+Embeddings endpoint canonical error responses:
+.TP
+.B 400 invalid_request
+Unsupported model, invalid input, or limit violation.
+.TP
+.B 503 upstream_error
+Backend disabled or unavailable.
+.TP
+.B 504 upstream_timeout
+Backend timed out.
+.TP
+.B 500 internal
+Internal backend/runtime failure with client-safe message.
+.SH MODEL IDS
+Accepted public embedding model IDs include:
+.TP
+.B nomic-embed-text
+.TP
+.B nomic-ai/nomic-embed-text-v1.5
+.TP
+.B nomic-embed-code
+.TP
+.B nomic-ai/nomic-embed-code
+.TP
+.B text-embedding-3-small
+.PP
+These aliases resolve to the configured backend model name.
+.SH METRICS
+When telemetry is enabled, emitted embeddings metrics include:
+.TP
+.B aegis_llm_server_embeddings_requests_total
+.TP
+.B aegis_llm_server_embeddings_input_texts_total
+.TP
+.B aegis_llm_server_embeddings_duration_ms
+.TP
+.B aegis_llm_server_embeddings_prompt_tokens
+.PP
+Common metric attributes:
+.BR model ,
+.BR status .
+.SH FILES
+.TP
 .I docs/contracts/openai-embeddings-compatible-v1.md
-.SH EXAMPLE
+Embeddings HTTP contract and error/status mapping.
+.TP
+.I README.md
+Operator-facing setup, configuration matrix, and examples.
+.SH ENVIRONMENT
+.TP
+.B AEGIS_LLM_SERVER_*
+Primary configuration namespace for server, backend, limits, and telemetry.
+.TP
+.B PORT
+Optional process-level port override.
+.SH EXAMPLES
+.TP
+Run deterministic backend locally:
+.PP
 .EX
-aegis-llm-server --host 127.0.0.1 --port 8181
-
-curl -sS -X POST http://127.0.0.1:8181/v1/embeddings \\
-  -H 'content-type: application/json' \\
-  -d '{"model":"nomic-embed-text","input":"hello world"}'
+AEGIS_LLM_SERVER_EMBEDDING__BACKEND=deterministic \
+AEGIS_LLM_SERVER_EMBEDDING__MODEL_NAME=nomic-ai/nomic-embed-text-v1.5 \
+aegis-llm-server
+.EE
+.TP
+Create embeddings:
+.PP
+.EX
+curl -sS http://127.0.0.1:8181/v1/embeddings \
+  -H "content-type: application/json" \
+  -d '{"model":"nomic-embed-code","input":["def add(a,b): return a+b"]}'
 .EE
 .SH EXIT STATUS
 .TP
@@ -108,3 +219,6 @@ Server exited normally.
 .TP
 .B >0
 Startup or runtime failure.
+.SH SEE ALSO
+.IR README.md ,
+.IR docs/contracts/openai-embeddings-compatible-v1.md

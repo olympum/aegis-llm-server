@@ -82,7 +82,12 @@ async def list_models(request: Request) -> ModelListResponse:
 @router.post(
     "/v1/embeddings",
     response_model=EmbeddingResponse,
-    responses={400: {"model": ErrorResponse}, 500: {"model": ErrorResponse}, 503: {"model": ErrorResponse}},
+    responses={
+        400: {"model": ErrorResponse},
+        500: {"model": ErrorResponse},
+        503: {"model": ErrorResponse},
+        504: {"model": ErrorResponse},
+    },
     tags=["Embeddings"],
 )
 async def create_embeddings(request: Request, body: EmbeddingRequest):
@@ -181,10 +186,10 @@ async def create_embeddings(request: Request, body: EmbeddingRequest):
         )
     except TimeoutError:
         logger.warning("Embedding generation timed out")
-        record_metrics(status="upstream_error", input_count=len(inputs), prompt_tokens=prompt_tokens)
+        record_metrics(status="upstream_timeout", input_count=len(inputs), prompt_tokens=prompt_tokens)
         return error_response(
-            status_code=503,
-            code="upstream_error",
+            status_code=504,
+            code="upstream_timeout",
             message="Embedding backend timed out.",
         )
     except Exception:

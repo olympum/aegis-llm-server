@@ -74,6 +74,25 @@ This service is embeddings-first and intentionally narrow:
 }
 ```
 
+### Model ID semantics
+
+1. Request `model` accepts public compatibility aliases.
+2. Accepted aliases map to the configured backend model (`AEGIS_LLM_SERVER_EMBEDDING__MODEL_NAME`).
+3. Alias acceptance does not imply multiple backend models are loaded.
+
+### Input limit semantics
+
+Configured limits that produce `400 invalid_request` when violated:
+
+1. `AEGIS_LLM_SERVER_EMBEDDING__MAX_BATCH_SIZE`
+2. `AEGIS_LLM_SERVER_EMBEDDING__MAX_INPUT_CHARS`
+3. `AEGIS_LLM_SERVER_EMBEDDING__MAX_TOTAL_CHARS`
+
+Backend timeout behavior:
+
+1. `AEGIS_LLM_SERVER_EMBEDDING__BACKEND_TIMEOUT_SECONDS` controls max backend embed time.
+2. Timeout returns `504 upstream_timeout`.
+
 ### Response `200`
 
 ```json
@@ -101,7 +120,7 @@ Canonical envelope:
 ```json
 {
   "error": {
-    "code": "invalid_request|upstream_error|internal",
+    "code": "invalid_request|upstream_error|upstream_timeout|internal",
     "message": "string"
   }
 }
@@ -110,8 +129,9 @@ Canonical envelope:
 Status mapping:
 
 1. `400 invalid_request` for unsupported model, malformed input, or configured input-size limit violations.
-2. `503 upstream_error` when embeddings are disabled, unavailable, or timed out.
-3. `500 internal` for backend failures or invalid backend output shape (with client-safe error messages).
+2. `503 upstream_error` when embeddings are disabled or unavailable.
+3. `504 upstream_timeout` when embedding generation exceeds configured backend timeout.
+4. `500 internal` for backend failures or invalid backend output shape (with client-safe error messages).
 
 ## Non-goals (v1)
 
