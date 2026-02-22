@@ -183,12 +183,19 @@ Common metric attributes:
 .BR status .
 .SH FILES
 .TP
+.I .env.example
+Starter environment template.
+.TP
 .I docs/contracts/openai-embeddings-compatible-v1.md
 Embeddings HTTP contract and error/status mapping.
 .TP
 .I README.md
 Operator-facing setup, configuration matrix, and examples.
 .SH ENVIRONMENT
+.B aegis-llm-server
+does not parse
+.I .env
+files directly. Load environment variables externally before startup.
 .TP
 .B AEGIS_LLM_SERVER_*
 Primary configuration namespace for server, backend, limits, and telemetry.

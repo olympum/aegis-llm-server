@@ -49,6 +49,19 @@ Option 2:
 uvicorn aegis_llm_server.main:app --host 0.0.0.0 --port 8181
 ```
 
+Configuration template:
+
+```bash
+cp .env.example .env
+set -a
+source .env
+set +a
+aegis-llm-server
+```
+
+`aegis-llm-server` does not parse `.env` directly; load env vars externally
+(shell, service manager, wrapper script).
+
 ## Use As A Library
 
 You can embed the FastAPI app directly in another Python process:
@@ -182,6 +195,7 @@ Current metric attributes:
 - Contract: `docs/contracts/openai-embeddings-compatible-v1.md`
 - MAN page: `docs/man/aegis-llm-server.1`
 - ADR: `docs/adr/0001-language-python-first.md`
+- Template: `.env.example`
 
 ## License
 
