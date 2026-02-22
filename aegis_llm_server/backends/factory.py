@@ -17,6 +17,7 @@ def create_embedding_backend(settings: Settings) -> EmbeddingBackend:
             model_name=settings.embedding.model_name,
             aliases=aliases,
             normalize=settings.embedding.normalize,
+            trust_remote_code=settings.embedding.trust_remote_code,
         )
 
     return DeterministicEmbeddingBackend(

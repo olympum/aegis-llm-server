@@ -13,7 +13,14 @@ class SentenceTransformersEmbeddingBackend:
 
     name = "sentence_transformers"
 
-    def __init__(self, *, model_name: str, aliases: Iterable[str], normalize: bool) -> None:
+    def __init__(
+        self,
+        *,
+        model_name: str,
+        aliases: Iterable[str],
+        normalize: bool,
+        trust_remote_code: bool,
+    ) -> None:
         try:
             from sentence_transformers import SentenceTransformer
         except ModuleNotFoundError as exc:  # pragma: no cover - depends on optional extra
@@ -25,7 +32,10 @@ class SentenceTransformersEmbeddingBackend:
         self.model_name = model_name
         self._aliases = list(aliases)
         self._normalize = normalize
-        self._model = SentenceTransformer(model_name)
+        self._model = SentenceTransformer(
+            model_name,
+            trust_remote_code=trust_remote_code,
+        )
         dim = self._model.get_sentence_embedding_dimension()
         self.dimension = int(dim) if dim else 0
 

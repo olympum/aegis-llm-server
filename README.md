@@ -1,6 +1,6 @@
 # aegis-llm-server
 
-OpenAI-compatible local embeddings server.
+OpenAI-compatible local model runtime for embeddings.
 
 This project provides an embeddings-focused HTTP service with a stable API:
 - `GET /health`
@@ -11,13 +11,17 @@ This project provides an embeddings-focused HTTP service with a stable API:
 
 In scope:
 - OpenAI-compatible embeddings endpoint
-- Local embedding backend runtime management
+- Local model loading/inference for embeddings
 - OpenTelemetry traces and metrics export (optional)
 
 Out of scope:
 - Chat/completions API
 - Gateway/provider policy routing
 - Multi-node scheduling
+
+Architecture note:
+- `aegis-llm-server` is the local model runtime.
+- `aegis-llm-proxy` is the caller-facing router/gateway.
 
 ## Install
 
@@ -29,7 +33,7 @@ source .venv/bin/activate
 pip install -e ".[dev]"
 ```
 
-Optional real local embeddings backend:
+Optional local-model runtime dependencies:
 
 ```bash
 pip install -e ".[local]"
@@ -77,10 +81,16 @@ app = create_app()
 `deterministic` backend (default, good for development/testing):
 - no extra env vars required
 
-`sentence_transformers` backend (real local embeddings):
+`sentence_transformers` backend (real in-process local model runtime):
+- install optional local deps: `pip install -e ".[local]"`
 - set `AEGIS_LLM_SERVER_EMBEDDING__BACKEND=sentence_transformers`
-- ensure optional dependency is installed (`.[local]`)
-- optionally set `AEGIS_LLM_SERVER_EMBEDDING__MODEL_NAME`
+- set `AEGIS_LLM_SERVER_EMBEDDING__MODEL_NAME` to the local embedding model to load
+- for Nomic models, keep `AEGIS_LLM_SERVER_EMBEDDING__TRUST_REMOTE_CODE=true`
+
+Production local-model backend:
+- run the model runtime inside `aegis-llm-server` (no proxy hop, no remote forward)
+- set `AEGIS_LLM_SERVER_EMBEDDING__BACKEND` to the local runtime backend implementation
+- set `AEGIS_LLM_SERVER_EMBEDDING__MODEL_NAME` to your local embedding model
 
 Telemetry disabled (default):
 - no telemetry env vars required
@@ -97,13 +107,14 @@ AEGIS_LLM_SERVER_SERVER__PORT=8181
 AEGIS_LLM_SERVER_EMBEDDING__BACKEND=deterministic
 ```
 
-Example `.env` (sentence-transformers + telemetry on):
+Example `.env` (production local-model runtime + telemetry on):
 
 ```bash
 AEGIS_LLM_SERVER_SERVER__HOST=0.0.0.0
 AEGIS_LLM_SERVER_SERVER__PORT=8181
 AEGIS_LLM_SERVER_EMBEDDING__BACKEND=sentence_transformers
 AEGIS_LLM_SERVER_EMBEDDING__MODEL_NAME=nomic-ai/nomic-embed-text-v1.5
+AEGIS_LLM_SERVER_EMBEDDING__TRUST_REMOTE_CODE=true
 AEGIS_LLM_SERVER_EMBEDDING__BACKEND_TIMEOUT_SECONDS=60
 AEGIS_LLM_SERVER_TELEMETRY__ENABLED=true
 AEGIS_LLM_SERVER_TELEMETRY__OTLP_ENDPOINT=http://otel-collector:4318
@@ -121,8 +132,9 @@ Server:
 
 Embedding backend:
 - `AEGIS_LLM_SERVER_EMBEDDING__ENABLED` (default `true`)
-- `AEGIS_LLM_SERVER_EMBEDDING__BACKEND` (`deterministic` or `sentence_transformers`, default `deterministic`)
+- `AEGIS_LLM_SERVER_EMBEDDING__BACKEND` (`deterministic` or `sentence_transformers`; default `deterministic`)
 - `AEGIS_LLM_SERVER_EMBEDDING__MODEL_NAME` (default `nomic-ai/nomic-embed-text-v1.5`)
+- `AEGIS_LLM_SERVER_EMBEDDING__TRUST_REMOTE_CODE` (default `true`; required by some local models such as Nomic HF repos)
 - `AEGIS_LLM_SERVER_EMBEDDING__DIMENSION` (default `768`; deterministic backend only)
 - `AEGIS_LLM_SERVER_EMBEDDING__NORMALIZE` (default `true`)
 
@@ -172,7 +184,7 @@ Important:
 
 `POST /v1/embeddings` canonical error codes:
 - `400 invalid_request` invalid model/input/limit violation
-- `503 upstream_error` backend disabled or unavailable
+- `503 upstream_error` local backend disabled or unavailable
 - `504 upstream_timeout` backend call exceeded timeout
 - `500 internal` internal processing/backend output validation failure
 
@@ -190,12 +202,49 @@ Current metric attributes:
 - `model`
 - `status`
 
+## Performance Benchmarking
+
+Use `scripts/bench_embeddings.py` to collect reproducible local latency and
+throughput baselines for `POST /v1/embeddings`.
+
+Example:
+
+```bash
+uv run python scripts/bench_embeddings.py \
+  --base-url http://127.0.0.1:8181 \
+  --model nomic-embed-text \
+  --requests 300 \
+  --warmup 30 \
+  --concurrency 20 \
+  --batch-size 1 \
+  --input-chars 256 \
+  --output docs/perf/results/local-baseline.json
+```
+
+Published baseline report:
+- `docs/perf/embeddings-baseline-2026-02-22.md`
+
 ## More Docs
 
 - Contract: `docs/contracts/openai-embeddings-compatible-v1.md`
 - MAN page: `docs/man/aegis-llm-server.1`
+- Phased plan + status scorecard: `docs/plans/aegis-llm-server-phased-plan.md`
+- Performance baseline report: `docs/perf/embeddings-baseline-2026-02-22.md`
 - ADR: `docs/adr/0001-language-python-first.md`
 - Template: `.env.example`
+
+## Roadmap Scope Status
+
+Current prioritization is local-only deliverables in this repo.
+
+Implemented locally:
+- embeddings contract/runtime/hardening
+- local embeddings backends (deterministic control + in-process model runtime)
+- telemetry hooks and metrics/traces export support
+
+Deferred to external consumer/gateway tracks:
+- proxy/corp/NAP integration and routing rollout
+- upstream legacy-cutover orchestration
 
 ## License
 

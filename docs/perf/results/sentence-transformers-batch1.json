@@ -1,0 +1,29 @@
+{
+  "config": {
+    "base_url": "http://127.0.0.1:8192",
+    "model": "nomic-embed-text",
+    "requests": 120,
+    "warmup": 12,
+    "concurrency": 8,
+    "batch_size": 1,
+    "input_chars": 256,
+    "timeout_seconds": 120.0
+  },
+  "results": {
+    "total_requests": 120,
+    "success_requests": 120,
+    "failed_requests": 0,
+    "error_breakdown": {},
+    "elapsed_seconds": 3.335827375000008,
+    "requests_per_second": 35.97308448852205,
+    "texts_per_second": 35.97308448852205,
+    "latency_ms": {
+      "min": 142.73162499921455,
+      "mean": 220.83896210839762,
+      "p50": 221.99114549948717,
+      "p95": 256.2679330505489,
+      "p99": 270.674415269732,
+      "max": 276.4222499990865
+    }
+  }
+}

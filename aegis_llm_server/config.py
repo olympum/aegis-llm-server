@@ -30,6 +30,7 @@ class EmbeddingConfig(BaseModel):
     enabled: bool = Field(default=True)
     backend: Literal["deterministic", "sentence_transformers"] = Field(default="deterministic")
     model_name: str = Field(default="nomic-ai/nomic-embed-text-v1.5")
+    trust_remote_code: bool = Field(default=True)
     dimension: int = Field(default=768, ge=8, le=8192)
     normalize: bool = Field(default=True)
     max_batch_size: int = Field(default=64, ge=1, le=2048)

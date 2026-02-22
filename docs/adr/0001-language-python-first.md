@@ -14,7 +14,7 @@ Implement `aegis-llm-server` Python-first.
 
 ## Why
 
-1. Strong local-model ecosystem support (sentence-transformers and adjacent tooling).
+1. Strong local-model ecosystem support (OpenAI-compatible local runtime integrations and adjacent tooling).
 2. Fast iteration for backend integration and diagnostics.
 3. Lower extraction risk from existing Python-heavy local-serving paths.
 4. HTTP contract decouples callers from implementation language.

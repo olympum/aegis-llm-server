@@ -1,6 +1,6 @@
 .TH AEGIS-LLM-SERVER 1 "2026-02-22" "aegis-llm-server" "User Commands"
 .SH NAME
-aegis-llm-server \- OpenAI-compatible local embeddings server
+aegis-llm-server \- OpenAI-compatible local model runtime for embeddings
 .SH SYNOPSIS
 .B aegis-llm-server
 .SH DESCRIPTION
@@ -9,6 +9,8 @@ serves local embeddings over HTTP with an OpenAI-compatible embeddings API.
 It is intentionally embeddings-first and does not implement chat/completions.
 .PP
 The process reads configuration from environment variables and starts a FastAPI/uvicorn server.
+.PP
+This service is the local model runtime for embeddings. Gateway routing/policy remains external.
 .SH ENDPOINTS
 .TP
 .B GET /health
@@ -38,7 +40,7 @@ Core install:
 pip install -e ".[dev]"
 .EE
 .TP
-Optional local model backend:
+Optional local-model runtime backend:
 .EX
 pip install -e ".[local]"
 .EE
@@ -78,16 +80,21 @@ Enable embeddings backend (default:
 .BR true ).
 .TP
 .B AEGIS_LLM_SERVER_EMBEDDING__BACKEND
-Backend implementation:
+Local backend implementation selector:
 .BR deterministic
 or
 .BR sentence_transformers
 (default:
-.BR deterministic ).
+.BR deterministic
+for testing/control).
 .TP
 .B AEGIS_LLM_SERVER_EMBEDDING__MODEL_NAME
 Configured backend model identifier (default:
 .BR nomic-ai/nomic-embed-text-v1.5 ).
+.TP
+.B AEGIS_LLM_SERVER_EMBEDDING__TRUST_REMOTE_CODE
+Allow model-specific remote code for local model loading (default:
+.BR true ).
 .TP
 .B AEGIS_LLM_SERVER_EMBEDDING__DIMENSION
 Embedding dimension for deterministic backend (default:
@@ -181,6 +188,12 @@ When telemetry is enabled, emitted embeddings metrics include:
 Common metric attributes:
 .BR model ,
 .BR status .
+.SH PERFORMANCE
+Local benchmark harness:
+.I scripts/bench_embeddings.py
+.PP
+Published local baseline report:
+.I docs/perf/embeddings-baseline-2026-02-22.md
 .SH FILES
 .TP
 .I .env.example
@@ -191,6 +204,9 @@ Embeddings HTTP contract and error/status mapping.
 .TP
 .I README.md
 Operator-facing setup, configuration matrix, and examples.
+.TP
+.I docs/perf/embeddings-baseline-2026-02-22.md
+Local reproducible p50/p95/throughput baseline report.
 .SH ENVIRONMENT
 .B aegis-llm-server
 does not parse
@@ -228,4 +244,5 @@ Server exited normally.
 Startup or runtime failure.
 .SH SEE ALSO
 .IR README.md ,
-.IR docs/contracts/openai-embeddings-compatible-v1.md
+.IR docs/contracts/openai-embeddings-compatible-v1.md ,
+.IR docs/perf/embeddings-baseline-2026-02-22.md

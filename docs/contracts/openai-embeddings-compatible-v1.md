@@ -12,6 +12,12 @@ This service is embeddings-first and intentionally narrow:
 2. `GET /v1/models`
 3. `POST /v1/embeddings`
 
+Service role:
+
+1. Runs local embedding model inference.
+2. Serves as backend runtime behind caller-facing gateway layers (for example `aegis-llm-proxy`).
+3. Does not own gateway routing/policy behavior.
+
 ## Endpoint: `GET /health`
 
 ### Response `200`
@@ -79,6 +85,13 @@ This service is embeddings-first and intentionally narrow:
 1. Request `model` accepts public compatibility aliases.
 2. Accepted aliases map to the configured backend model (`AEGIS_LLM_SERVER_EMBEDDING__MODEL_NAME`).
 3. Alias acceptance does not imply multiple backend models are loaded.
+
+### Backend semantics
+
+1. `AEGIS_LLM_SERVER_EMBEDDING__BACKEND=deterministic` uses local deterministic vectors for testing/control.
+2. `AEGIS_LLM_SERVER_EMBEDDING__BACKEND=sentence_transformers` uses an in-process local model runtime backend.
+3. `AEGIS_LLM_SERVER_EMBEDDING__TRUST_REMOTE_CODE` controls model-specific remote-code loading in sentence-transformers (default `true` for Nomic compatibility).
+4. This contract intentionally does not define inter-service forwarding behavior; caller-side routing is owned by `aegis-llm-proxy`.
 
 ### Input limit semantics
 
