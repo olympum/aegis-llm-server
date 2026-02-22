@@ -110,7 +110,7 @@ Canonical envelope:
 Status mapping:
 
 1. `400 invalid_request` for unsupported model, malformed input, or configured input-size limit violations.
-2. `503 upstream_error` when embeddings are disabled/unavailable.
+2. `503 upstream_error` when embeddings are disabled, unavailable, or timed out.
 3. `500 internal` for backend failures or invalid backend output shape (with client-safe error messages).
 
 ## Non-goals (v1)

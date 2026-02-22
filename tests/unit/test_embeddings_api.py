@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import asyncio
+
 from fastapi.testclient import TestClient
 import pytest
 
@@ -18,6 +20,7 @@ def clear_env(monkeypatch):
         "AEGIS_LLM_SERVER_EMBEDDING__MAX_BATCH_SIZE",
         "AEGIS_LLM_SERVER_EMBEDDING__MAX_INPUT_CHARS",
         "AEGIS_LLM_SERVER_EMBEDDING__MAX_TOTAL_CHARS",
+        "AEGIS_LLM_SERVER_EMBEDDING__BACKEND_TIMEOUT_SECONDS",
         "AEGIS_LLM_SERVER_TELEMETRY__ENABLED",
         "AEGIS_LLM_SERVER_TELEMETRY__OTLP_ENDPOINT",
         "AEGIS_LLM_SERVER_TELEMETRY__OTLP_TIMEOUT_SECONDS",
@@ -186,3 +189,102 @@ def test_embeddings_backend_error_does_not_leak_details():
         body = response.json()
         assert body["error"]["code"] == "internal"
         assert body["error"]["message"] == "Embedding generation failed."
+
+
+def test_models_backend_unavailable_returns_empty_list():
+    with TestClient(create_app()) as client:
+        client.app.state.embedding_backend = None
+        response = client.get("/v1/models")
+        assert response.status_code == 200
+        assert response.json()["data"] == []
+
+
+def test_embeddings_backend_unavailable_returns_503():
+    with TestClient(create_app()) as client:
+        client.app.state.embedding_backend = None
+        response = client.post(
+            "/v1/embeddings",
+            json={"model": "nomic-embed-text", "input": "hello"},
+        )
+        assert response.status_code == 503
+        body = response.json()
+        assert body["error"]["code"] == "upstream_error"
+        assert body["error"]["message"] == "Embedding backend is unavailable."
+
+
+def test_embeddings_backend_timeout_returns_503(monkeypatch):
+    class SlowBackend:
+        name = "slow"
+        model_name = "nomic-ai/nomic-embed-text-v1.5"
+        dimension = 768
+
+        async def embed(self, inputs: list[str]) -> list[list[float]]:
+            del inputs
+            await asyncio.sleep(0.05)
+            return [[0.0] * self.dimension]
+
+        def advertised_models(self) -> list[str]:
+            return ["nomic-embed-text"]
+
+    monkeypatch.setenv("AEGIS_LLM_SERVER_EMBEDDING__BACKEND_TIMEOUT_SECONDS", "0.01")
+    reset_settings()
+    with TestClient(create_app()) as client:
+        client.app.state.embedding_backend = SlowBackend()
+        response = client.post(
+            "/v1/embeddings",
+            json={"model": "nomic-embed-text", "input": "hello"},
+        )
+        assert response.status_code == 503
+        body = response.json()
+        assert body["error"]["code"] == "upstream_error"
+        assert body["error"]["message"] == "Embedding backend timed out."
+
+
+def test_embeddings_invalid_dimension_returns_500():
+    class WrongDimBackend:
+        name = "wrong-dim"
+        model_name = "nomic-ai/nomic-embed-text-v1.5"
+        dimension = 3
+
+        async def embed(self, inputs: list[str]) -> list[list[float]]:
+            del inputs
+            return [[0.1, 0.2]]
+
+        def advertised_models(self) -> list[str]:
+            return ["nomic-embed-text"]
+
+    with TestClient(create_app()) as client:
+        client.app.state.embedding_backend = WrongDimBackend()
+        response = client.post(
+            "/v1/embeddings",
+            json={"model": "nomic-embed-text", "input": "hello"},
+        )
+        assert response.status_code == 500
+        body = response.json()
+        assert body["error"]["code"] == "internal"
+        assert "invalid vector dimension" in body["error"]["message"]
+
+
+def test_embeddings_non_finite_values_returns_500():
+    class NonFiniteBackend:
+        name = "non-finite"
+        model_name = "nomic-ai/nomic-embed-text-v1.5"
+        dimension = 3
+
+        async def embed(self, inputs: list[str]) -> list[list[float]]:
+            del inputs
+            return [[0.1, float("nan"), 0.3]]
+
+        def advertised_models(self) -> list[str]:
+            return ["nomic-embed-text"]
+
+    with TestClient(create_app()) as client:
+        client.app.state.embedding_backend = NonFiniteBackend()
+        response = client.post(
+            "/v1/embeddings",
+            json={"model": "nomic-embed-text", "input": "hello"},
+        )
+        assert response.status_code == 500
+        body = response.json()
+        assert body["error"]["code"] == "internal"
+        assert "non-finite vector values" in body["error"]["message"]

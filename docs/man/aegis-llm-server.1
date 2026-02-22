@@ -63,6 +63,10 @@ Maximum character length per input string (default:
 Maximum total character length across all input strings in one request (default:
 .BR 262144 ).
 .TP
+.B AEGIS_LLM_SERVER_EMBEDDING__BACKEND_TIMEOUT_SECONDS
+Maximum time to wait for backend embedding generation before returning upstream error (default:
+.BR 30 ).
+.TP
 .B AEGIS_LLM_SERVER_TELEMETRY__ENABLED
 Enable OpenTelemetry tracing export (default:
 .BR false ).

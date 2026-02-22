@@ -35,6 +35,7 @@ class EmbeddingConfig(BaseModel):
     max_batch_size: int = Field(default=64, ge=1, le=2048)
     max_input_chars: int = Field(default=32768, ge=1, le=1_000_000)
     max_total_chars: int = Field(default=262144, ge=1, le=5_000_000)
+    backend_timeout_seconds: float = Field(default=30.0, gt=0.0, le=600.0)
 
 
 class TelemetryConfig(BaseModel):

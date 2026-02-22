@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import asyncio
 import logging
+import math
 import time
 
 from fastapi import APIRouter, Request
@@ -33,11 +35,8 @@ def error_response(status_code: int, code: str, message: str) -> JSONResponse:
     return JSONResponse(status_code=status_code, content=payload.model_dump())
 
 
-def get_backend(request: Request) -> EmbeddingBackend:
-    backend = getattr(request.app.state, "embedding_backend", None)
-    if backend is None:
-        raise RuntimeError("Embedding backend is not initialized")
-    return backend
+def get_backend(request: Request) -> EmbeddingBackend | None:
+    return getattr(request.app.state, "embedding_backend", None)
 
 
 def get_embeddings_metrics(request: Request) -> EmbeddingsMetrics:
@@ -70,6 +69,9 @@ async def list_models(request: Request) -> ModelListResponse:
         return ModelListResponse(data=[])
 
     backend = get_backend(request)
+    if backend is None:
+        return ModelListResponse(data=[])
+
     models = [
         ModelInfo(id=model_id, created=created)
         for model_id in backend.advertised_models()
@@ -118,6 +120,15 @@ async def create_embeddings(request: Request, body: EmbeddingRequest):
         )
 
     backend = get_backend(request)
+    if backend is None:
+        input_count = 1 if isinstance(body.input, str) else len(body.input)
+        record_metrics(status="upstream_error", input_count=input_count, prompt_tokens=None)
+        return error_response(
+            status_code=503,
+            code="upstream_error",
+            message="Embedding backend is unavailable.",
+        )
+
     inputs = [body.input] if isinstance(body.input, str) else body.input
     if not inputs:
         record_metrics(status="invalid_request", input_count=0, prompt_tokens=None)
@@ -164,7 +175,18 @@ async def create_embeddings(request: Request, body: EmbeddingRequest):
     prompt_tokens = sum(len(text.split()) for text in inputs)
 
     try:
-        vectors = await backend.embed(inputs)
+        vectors = await asyncio.wait_for(
+            backend.embed(inputs),
+            timeout=settings.embedding.backend_timeout_seconds,
+        )
+    except TimeoutError:
+        logger.warning("Embedding generation timed out")
+        record_metrics(status="upstream_error", input_count=len(inputs), prompt_tokens=prompt_tokens)
+        return error_response(
+            status_code=503,
+            code="upstream_error",
+            message="Embedding backend timed out.",
+        )
     except Exception:
         logger.exception("Embedding generation failed")
         record_metrics(status="internal", input_count=len(inputs), prompt_tokens=prompt_tokens)
@@ -181,6 +203,29 @@ async def create_embeddings(request: Request, body: EmbeddingRequest):
             code="internal",
             message="Embedding backend returned mismatched vector count.",
         )
+
+    expected_dimension = backend.dimension if backend.dimension > 0 else None
+    for idx, vector in enumerate(vectors):
+        if expected_dimension is not None and len(vector) != expected_dimension:
+            record_metrics(status="internal", input_count=len(inputs), prompt_tokens=prompt_tokens)
+            return error_response(
+                status_code=500,
+                code="internal",
+                message=(
+                    f"Embedding backend returned invalid vector dimension at index {idx}: "
+                    f"expected {expected_dimension}, got {len(vector)}."
+                ),
+            )
+        try:
+            if any(not math.isfinite(float(value)) for value in vector):
+                raise ValueError("non-finite")
+        except (TypeError, ValueError):
+            record_metrics(status="internal", input_count=len(inputs), prompt_tokens=prompt_tokens)
+            return error_response(
+                status_code=500,
+                code="internal",
+                message=f"Embedding backend returned non-finite vector values at index {idx}.",
+            )
 
     items = [EmbeddingData(index=i, embedding=vector) for i, vector in enumerate(vectors)]
     record_metrics(status="ok", input_count=len(inputs), prompt_tokens=prompt_tokens)
