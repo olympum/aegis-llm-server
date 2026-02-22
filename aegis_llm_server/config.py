@@ -34,6 +34,17 @@ class EmbeddingConfig(BaseModel):
     normalize: bool = Field(default=True)
 
 
+class TelemetryConfig(BaseModel):
+    """OpenTelemetry configuration."""
+
+    enabled: bool = Field(default=False)
+    otlp_endpoint: str = Field(default="http://127.0.0.1:4318")
+    otlp_timeout_seconds: float = Field(default=10.0, gt=0.0, le=120.0)
+    metrics_export_interval_ms: int = Field(default=5000, ge=250, le=60000)
+    sample_ratio: float = Field(default=1.0, ge=0.0, le=1.0)
+    otlp_headers: dict[str, str] = Field(default_factory=dict)
+
+
 class Settings(BaseSettings):
     """Service settings loaded from environment."""
 
@@ -47,6 +58,7 @@ class Settings(BaseSettings):
 
     server: ServerConfig = Field(default_factory=ServerConfig)
     embedding: EmbeddingConfig = Field(default_factory=EmbeddingConfig)
+    telemetry: TelemetryConfig = Field(default_factory=TelemetryConfig)
 
     def resolve_embedding_model(self, requested_model: str) -> str | None:
         """Map accepted public aliases to the configured local backend model."""

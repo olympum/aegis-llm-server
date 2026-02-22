@@ -50,6 +50,30 @@ or
 .TP
 .B AEGIS_LLM_SERVER_EMBEDDING__MODEL_NAME
 Default embedding model identifier.
+.TP
+.B AEGIS_LLM_SERVER_TELEMETRY__ENABLED
+Enable OpenTelemetry tracing export (default:
+.BR false ).
+.TP
+.B AEGIS_LLM_SERVER_TELEMETRY__OTLP_ENDPOINT
+OTLP collector base URL or traces URL (default:
+.BR http://127.0.0.1:4318 ).
+.TP
+.B AEGIS_LLM_SERVER_TELEMETRY__OTLP_TIMEOUT_SECONDS
+OTLP export timeout in seconds (default:
+.BR 10 ).
+.TP
+.B AEGIS_LLM_SERVER_TELEMETRY__METRICS_EXPORT_INTERVAL_MS
+Metrics export interval in milliseconds (default:
+.BR 5000 ).
+.TP
+.B AEGIS_LLM_SERVER_TELEMETRY__SAMPLE_RATIO
+Trace sampling ratio between
+.BR 0.0
+and
+.BR 1.0
+(default:
+.BR 1.0 ).
 .SH CONTRACT
 See:
 .I docs/contracts/openai-embeddings-compatible-v1.md

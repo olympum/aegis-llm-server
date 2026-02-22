@@ -20,6 +20,7 @@ from aegis_llm_server.api.models import (
 )
 from aegis_llm_server.backends.base import EmbeddingBackend
 from aegis_llm_server.config import get_settings
+from aegis_llm_server.telemetry import EmbeddingsMetrics, NoopEmbeddingsMetrics
 
 router = APIRouter()
 
@@ -35,6 +36,13 @@ def get_backend(request: Request) -> EmbeddingBackend:
     if backend is None:
         raise RuntimeError("Embedding backend is not initialized")
     return backend
+
+
+def get_embeddings_metrics(request: Request) -> EmbeddingsMetrics:
+    metrics = getattr(request.app.state, "embeddings_metrics", None)
+    if metrics is None:
+        return NoopEmbeddingsMetrics()
+    return metrics
 
 
 @router.get("/health", response_model=HealthResponse, tags=["Health"])
@@ -75,8 +83,22 @@ async def list_models(request: Request) -> ModelListResponse:
 )
 async def create_embeddings(request: Request, body: EmbeddingRequest):
     """OpenAI-compatible embeddings endpoint."""
+    started_at = time.perf_counter()
+    metrics = get_embeddings_metrics(request)
+
+    def record_metrics(status: str, input_count: int, prompt_tokens: int | None) -> None:
+        elapsed_ms = (time.perf_counter() - started_at) * 1000.0
+        metrics.record(
+            model=body.model,
+            status=status,
+            input_count=input_count,
+            prompt_tokens=prompt_tokens,
+            duration_ms=elapsed_ms,
+        )
+
     settings = get_settings()
     if not settings.embedding.enabled:
+        record_metrics(status="upstream_error", input_count=0, prompt_tokens=None)
         return error_response(
             status_code=503,
             code="upstream_error",
@@ -85,6 +107,8 @@ async def create_embeddings(request: Request, body: EmbeddingRequest):
 
     resolved_model = settings.resolve_embedding_model(body.model)
     if resolved_model is None:
+        input_count = 1 if isinstance(body.input, str) else len(body.input)
+        record_metrics(status="invalid_request", input_count=input_count, prompt_tokens=None)
         return error_response(
             status_code=400,
             code="invalid_request",
@@ -93,10 +117,12 @@ async def create_embeddings(request: Request, body: EmbeddingRequest):
 
     backend = get_backend(request)
     inputs = [body.input] if isinstance(body.input, str) else body.input
+    prompt_tokens = sum(len(text.split()) for text in inputs)
 
     try:
         vectors = await backend.embed(inputs)
     except Exception as exc:
+        record_metrics(status="internal", input_count=len(inputs), prompt_tokens=prompt_tokens)
         return error_response(
             status_code=500,
             code="internal",
@@ -104,6 +130,7 @@ async def create_embeddings(request: Request, body: EmbeddingRequest):
         )
 
     if len(vectors) != len(inputs):
+        record_metrics(status="internal", input_count=len(inputs), prompt_tokens=prompt_tokens)
         return error_response(
             status_code=500,
             code="internal",
@@ -111,7 +138,7 @@ async def create_embeddings(request: Request, body: EmbeddingRequest):
         )
 
     items = [EmbeddingData(index=i, embedding=vector) for i, vector in enumerate(vectors)]
-    prompt_tokens = sum(len(text.split()) for text in inputs)
+    record_metrics(status="ok", input_count=len(inputs), prompt_tokens=prompt_tokens)
 
     return EmbeddingResponse(
         model=body.model,

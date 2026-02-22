@@ -70,6 +70,14 @@ Environment prefix: `AEGIS_LLM_SERVER_`
 - `AEGIS_LLM_SERVER_EMBEDDING__MODEL_NAME` (default `nomic-ai/nomic-embed-text-v1.5`)
 - `AEGIS_LLM_SERVER_EMBEDDING__DIMENSION` (default `768`, used by deterministic backend)
 - `AEGIS_LLM_SERVER_EMBEDDING__NORMALIZE` (default `true`)
+- `AEGIS_LLM_SERVER_TELEMETRY__ENABLED` (default `false`)
+- `AEGIS_LLM_SERVER_TELEMETRY__OTLP_ENDPOINT` (default `http://127.0.0.1:4318`)
+- `AEGIS_LLM_SERVER_TELEMETRY__OTLP_TIMEOUT_SECONDS` (default `10`)
+- `AEGIS_LLM_SERVER_TELEMETRY__METRICS_EXPORT_INTERVAL_MS` (default `5000`)
+- `AEGIS_LLM_SERVER_TELEMETRY__SAMPLE_RATIO` (default `1.0`)
+- `AEGIS_LLM_SERVER_TELEMETRY__OTLP_HEADERS__<NAME>` (optional OTLP HTTP header map)
+
+When telemetry is enabled, the server exports traces and embeddings metrics via OTLP HTTP.
 
 ## Backend Notes
 
