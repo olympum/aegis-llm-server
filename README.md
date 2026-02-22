@@ -11,7 +11,7 @@ Provide a dedicated local model server, separate from `aegis-llm-proxy`, so loca
 Primary docs:
 - `docs/contracts/openai-embeddings-compatible-v1.md`
 - `docs/man/aegis-llm-server.1`
-- `docs/plans/nap-to-aegis-llm-server-phased-plan.md`
+- `docs/plans/aegis-llm-server-phased-plan.md`
 - `docs/adr/0001-language-python-first.md`
 
 ## Scope

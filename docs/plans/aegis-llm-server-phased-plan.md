@@ -1,4 +1,4 @@
-# NAP + Aegis -> aegis-llm-server Phased Rewrite / Port Plan
+# Aegis -> aegis-llm-server Phased Rewrite / Port Plan
 
 Last updated: 2026-02-22
 
@@ -26,9 +26,9 @@ Out of scope:
 
 ## Source Inventory
 
-Primary extraction source (NAP):
+Primary extraction source:
 
-1. local embedding-related behavior currently mixed into `platform/llm-inference/...`.
+1. local embedding-related behavior currently mixed into legacy local-serving stacks.
 
 Primary integration consumers:
 
@@ -82,19 +82,19 @@ Exit gate:
 1. Proxy-to-server integration tests pass.
 2. Local embeddings path meets agreed SLO.
 
-## Phase 3: NAP Cutover
+## Phase 3: Legacy Cutover
 
-Goal: remove duplicated local model-serving concerns from NAP.
+Goal: remove duplicated local model-serving concerns from legacy stacks.
 
 Deliverables:
 
 1. Deploy and route local embedding calls to `aegis-llm-server` via proxy strategy.
-2. Remove legacy local-serving codepaths in NAP llm-inference stack.
+2. Remove legacy local-serving codepaths in upstream caller stacks.
 3. Keep rollback path artifact/version based.
 
 Exit gate:
 
-1. NAP callers stable on extracted service.
+1. Callers stable on extracted service.
 2. Legacy code removed.
 
 ## Acceptance Metrics
@@ -102,4 +102,4 @@ Exit gate:
 1. Contract conformance: zero unresolved schema mismatches.
 2. Reliability: low error-rate and stable health checks.
 3. Performance: agreed p50/p95 embeddings latency and throughput.
-4. De-dup completion: legacy NAP local-serving code removed.
+4. De-dup completion: legacy local-serving code removed.

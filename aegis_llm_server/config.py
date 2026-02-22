@@ -11,6 +11,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 DEFAULT_EMBEDDING_ALIASES = (
     "nomic-embed-text",
     "nomic-ai/nomic-embed-text-v1.5",
+    "nomic-embed-code",
+    "nomic-ai/nomic-embed-code",
     "text-embedding-3-small",
 )
 

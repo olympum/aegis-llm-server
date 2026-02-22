@@ -39,6 +39,8 @@ def test_models_lists_embedding_aliases():
         ids = [item["id"] for item in response.json()["data"]]
         assert "nomic-embed-text" in ids
         assert "nomic-ai/nomic-embed-text-v1.5" in ids
+        assert "nomic-embed-code" in ids
+        assert "nomic-ai/nomic-embed-code" in ids
         assert "text-embedding-3-small" in ids
 
 
@@ -79,6 +81,19 @@ def test_embeddings_unknown_model_rejected():
         assert response.status_code == 400
         body = response.json()
         assert body["error"]["code"] == "invalid_request"
+
+
+def test_embeddings_nomic_code_alias_success():
+    with TestClient(create_app()) as client:
+        response = client.post(
+            "/v1/embeddings",
+            json={"model": "nomic-embed-code", "input": "def hello(): return 1"},
+        )
+        assert response.status_code == 200
+        body = response.json()
+        assert body["model"] == "nomic-embed-code"
+        assert len(body["data"]) == 1
+        assert len(body["data"][0]["embedding"]) == 768
 
 
 def test_embeddings_disabled_returns_503(monkeypatch):

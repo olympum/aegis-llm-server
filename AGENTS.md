@@ -1,6 +1,6 @@
 # Aegis LLM Server
 
-OpenAI-compatible local model server (embeddings-first) for Aegis and NAP.
+OpenAI-compatible local model server (embeddings-first) for Aegis workloads.
 
 ## Development Commands
 
@@ -22,7 +22,7 @@ Primary references:
 
 - `docs/contracts/openai-embeddings-compatible-v1.md`
 - `docs/man/aegis-llm-server.1`
-- `docs/plans/nap-to-aegis-llm-server-phased-plan.md`
+- `docs/plans/aegis-llm-server-phased-plan.md`
 
 ## Constraints
 
