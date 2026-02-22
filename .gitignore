@@ -1,0 +1,31 @@
+# Runtime artifacts
+*.log
+*.pid
+
+# Build/test artifacts
+bin/
+build/
+dist/
+target/
+coverage/
+lcov.info
+
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+
+# Local environment
+.env
+.env.local
+.venv/
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+*~

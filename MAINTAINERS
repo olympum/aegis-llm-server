@@ -1,0 +1,11 @@
+# Maintainers
+
+This file tracks active maintainers for `aegis-llm-server`.
+
+- Bruno Fernandez-Ruiz (`@brunofr`) - Project maintainer
+
+## Responsibilities
+
+- Review and merge pull requests
+- Keep release and compatibility docs current
+- Enforce contribution and commit policies
