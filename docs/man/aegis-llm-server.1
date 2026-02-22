@@ -1,0 +1,70 @@
+.TH AEGIS-LLM-SERVER 1 "2026-02-22" "aegis-llm-server" "User Commands"
+.SH NAME
+aegis-llm-server \- OpenAI-compatible local model server (embeddings-first)
+.SH SYNOPSIS
+.B aegis-llm-server
+[
+.B --host
+.I HOST
+]
+[
+.B --port
+.I PORT
+]
+.SH DESCRIPTION
+.B aegis-llm-server
+serves local model capabilities over HTTP, currently focused on embeddings.
+Gateway routing, policy, and provider abstraction remain in
+.BR aegis-llm-proxy .
+.SH ENDPOINTS
+.TP
+.B GET /health
+Service health and backend readiness.
+.TP
+.B GET /v1/models
+List advertised embedding model aliases.
+.TP
+.B POST /v1/embeddings
+Generate embeddings using local backend(s).
+.SH CONFIGURATION
+Environment prefix:
+.BR AEGIS_LLM_SERVER_ .
+.TP
+.B AEGIS_LLM_SERVER_SERVER__HOST
+Bind host (default:
+.BR 0.0.0.0 )
+.TP
+.B AEGIS_LLM_SERVER_SERVER__PORT
+Bind port (default:
+.BR 8181 )
+.TP
+.B AEGIS_LLM_SERVER_EMBEDDING__ENABLED
+Enable embeddings backend (default:
+.BR true )
+.TP
+.B AEGIS_LLM_SERVER_EMBEDDING__BACKEND
+Backend implementation (for example
+.B deterministic
+or
+.BR sentence_transformers ).
+.TP
+.B AEGIS_LLM_SERVER_EMBEDDING__MODEL_NAME
+Default embedding model identifier.
+.SH CONTRACT
+See:
+.I docs/contracts/openai-embeddings-compatible-v1.md
+.SH EXAMPLE
+.EX
+aegis-llm-server --host 127.0.0.1 --port 8181
+
+curl -sS -X POST http://127.0.0.1:8181/v1/embeddings \\
+  -H 'content-type: application/json' \\
+  -d '{"model":"nomic-embed-text","input":"hello world"}'
+.EE
+.SH EXIT STATUS
+.TP
+.B 0
+Server exited normally.
+.TP
+.B >0
+Startup or runtime failure.

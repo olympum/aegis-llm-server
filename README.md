@@ -6,6 +6,14 @@ OpenAI-compatible local LLM server for embeddings-first workloads.
 
 Provide a dedicated local model server, separate from `aegis-llm-proxy`, so local inference concerns (model loading, embedding generation, hardware tuning) stay isolated from gateway concerns.
 
+## Product Contract
+
+Primary docs:
+- `docs/contracts/openai-embeddings-compatible-v1.md`
+- `docs/man/aegis-llm-server.1`
+- `docs/plans/nap-to-aegis-llm-server-phased-plan.md`
+- `docs/adr/0001-language-python-first.md`
+
 ## Scope
 
 In scope:
@@ -44,6 +52,11 @@ curl -sS http://127.0.0.1:8181/v1/models
 curl -sS -X POST http://127.0.0.1:8181/v1/embeddings \
   -H 'content-type: application/json' \
   -d '{"model":"nomic-embed-text","input":"hello world"}'
+
+# embeddings (code alias)
+curl -sS -X POST http://127.0.0.1:8181/v1/embeddings \
+  -H 'content-type: application/json' \
+  -d '{"model":"nomic-embed-code","input":"def hello(): return 1"}'
 ```
 
 ## Configuration
