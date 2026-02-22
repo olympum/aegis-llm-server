@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import time
 
 from fastapi import APIRouter, Request
@@ -23,6 +24,7 @@ from aegis_llm_server.config import get_settings
 from aegis_llm_server.telemetry import EmbeddingsMetrics, NoopEmbeddingsMetrics
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 
 def error_response(status_code: int, code: str, message: str) -> JSONResponse:
@@ -117,16 +119,59 @@ async def create_embeddings(request: Request, body: EmbeddingRequest):
 
     backend = get_backend(request)
     inputs = [body.input] if isinstance(body.input, str) else body.input
+    if not inputs:
+        record_metrics(status="invalid_request", input_count=0, prompt_tokens=None)
+        return error_response(
+            status_code=400,
+            code="invalid_request",
+            message="Embedding input list cannot be empty.",
+        )
+    if len(inputs) > settings.embedding.max_batch_size:
+        record_metrics(status="invalid_request", input_count=len(inputs), prompt_tokens=None)
+        return error_response(
+            status_code=400,
+            code="invalid_request",
+            message=(
+                f"Embedding input batch size {len(inputs)} exceeds configured limit "
+                f"{settings.embedding.max_batch_size}."
+            ),
+        )
+
+    too_long_idx = next((idx for idx, text in enumerate(inputs) if len(text) > settings.embedding.max_input_chars), None)
+    if too_long_idx is not None:
+        record_metrics(status="invalid_request", input_count=len(inputs), prompt_tokens=None)
+        return error_response(
+            status_code=400,
+            code="invalid_request",
+            message=(
+                f"Embedding input at index {too_long_idx} exceeds configured character limit "
+                f"{settings.embedding.max_input_chars}."
+            ),
+        )
+
+    total_chars = sum(len(text) for text in inputs)
+    if total_chars > settings.embedding.max_total_chars:
+        record_metrics(status="invalid_request", input_count=len(inputs), prompt_tokens=None)
+        return error_response(
+            status_code=400,
+            code="invalid_request",
+            message=(
+                f"Total embedding input size {total_chars} exceeds configured character limit "
+                f"{settings.embedding.max_total_chars}."
+            ),
+        )
+
     prompt_tokens = sum(len(text.split()) for text in inputs)
 
     try:
         vectors = await backend.embed(inputs)
-    except Exception as exc:
+    except Exception:
+        logger.exception("Embedding generation failed")
         record_metrics(status="internal", input_count=len(inputs), prompt_tokens=prompt_tokens)
         return error_response(
             status_code=500,
             code="internal",
-            message=f"Embedding generation failed: {exc}",
+            message="Embedding generation failed.",
         )
 
     if len(vectors) != len(inputs):

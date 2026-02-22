@@ -51,6 +51,18 @@ or
 .B AEGIS_LLM_SERVER_EMBEDDING__MODEL_NAME
 Default embedding model identifier.
 .TP
+.B AEGIS_LLM_SERVER_EMBEDDING__MAX_BATCH_SIZE
+Maximum number of input strings accepted per embeddings request (default:
+.BR 64 ).
+.TP
+.B AEGIS_LLM_SERVER_EMBEDDING__MAX_INPUT_CHARS
+Maximum character length per input string (default:
+.BR 32768 ).
+.TP
+.B AEGIS_LLM_SERVER_EMBEDDING__MAX_TOTAL_CHARS
+Maximum total character length across all input strings in one request (default:
+.BR 262144 ).
+.TP
 .B AEGIS_LLM_SERVER_TELEMETRY__ENABLED
 Enable OpenTelemetry tracing export (default:
 .BR false ).

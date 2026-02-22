@@ -32,6 +32,9 @@ class EmbeddingConfig(BaseModel):
     model_name: str = Field(default="nomic-ai/nomic-embed-text-v1.5")
     dimension: int = Field(default=768, ge=8, le=8192)
     normalize: bool = Field(default=True)
+    max_batch_size: int = Field(default=64, ge=1, le=2048)
+    max_input_chars: int = Field(default=32768, ge=1, le=1_000_000)
+    max_total_chars: int = Field(default=262144, ge=1, le=5_000_000)
 
 
 class TelemetryConfig(BaseModel):
