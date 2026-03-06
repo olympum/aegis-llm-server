@@ -194,6 +194,12 @@ Local benchmark harness:
 .PP
 Published local baseline report:
 .I docs/perf/embeddings-baseline-2026-02-22.md
+.PP
+Local soak harness:
+.I scripts/soak_embeddings.py
+.PP
+Published reliability soak report:
+.I docs/perf/embeddings-reliability-soak-2026-03-06.md
 .SH FILES
 .TP
 .I .env.example
@@ -207,6 +213,9 @@ Operator-facing setup, configuration matrix, and examples.
 .TP
 .I docs/perf/embeddings-baseline-2026-02-22.md
 Local reproducible p50/p95/throughput baseline report.
+.TP
+.I docs/perf/embeddings-reliability-soak-2026-03-06.md
+Local reproducible soak report with reliability guardrails.
 .SH ENVIRONMENT
 .B aegis-llm-server
 does not parse
@@ -245,4 +254,5 @@ Startup or runtime failure.
 .SH SEE ALSO
 .IR README.md ,
 .IR docs/contracts/openai-embeddings-compatible-v1.md ,
-.IR docs/perf/embeddings-baseline-2026-02-22.md
+.IR docs/perf/embeddings-baseline-2026-02-22.md ,
+.IR docs/perf/embeddings-reliability-soak-2026-03-06.md

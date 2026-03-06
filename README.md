@@ -224,12 +224,34 @@ uv run python scripts/bench_embeddings.py \
 Published baseline report:
 - `docs/perf/embeddings-baseline-2026-02-22.md`
 
+Use `scripts/soak_embeddings.py` to run a sustained-load reliability profile
+with fixed time windows, error-rate tracking, and tail-latency drift checks.
+
+Example:
+
+```bash
+uv run uvicorn aegis_llm_server.main:app --host 127.0.0.1 --port 8193 --no-access-log
+
+uv run python scripts/soak_embeddings.py \
+  --base-url http://127.0.0.1:8193 \
+  --duration-seconds 600 \
+  --bucket-seconds 60 \
+  --concurrency 20 \
+  --batch-size 1 \
+  --input-chars 256 \
+  --output docs/perf/results/deterministic-soak-10m-20260306.json
+```
+
+Published reliability soak report:
+- `docs/perf/embeddings-reliability-soak-2026-03-06.md`
+
 ## More Docs
 
 - Contract: `docs/contracts/openai-embeddings-compatible-v1.md`
 - MAN page: `docs/man/aegis-llm-server.1`
 - Phased plan + status scorecard: `docs/plans/aegis-llm-server-phased-plan.md`
 - Performance baseline report: `docs/perf/embeddings-baseline-2026-02-22.md`
+- Reliability soak report: `docs/perf/embeddings-reliability-soak-2026-03-06.md`
 - ADR: `docs/adr/0001-language-python-first.md`
 - Template: `.env.example`
 

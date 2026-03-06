@@ -1,0 +1,265 @@
+{
+  "config": {
+    "base_url": "http://127.0.0.1:8193",
+    "model": "nomic-embed-text",
+    "duration_seconds": 600,
+    "warmup_requests": 30,
+    "concurrency": 20,
+    "batch_size": 1,
+    "input_chars": 256,
+    "timeout_seconds": 30.0,
+    "bucket_seconds": 60,
+    "max_error_rate_pct": 0.1,
+    "max_window_p95_ms": 250.0,
+    "max_p95_drift_pct": 100.0
+  },
+  "results": {
+    "total_requests": 325408,
+    "success_requests": 325408,
+    "failed_requests": 0,
+    "error_breakdown": {},
+    "elapsed_seconds": 600.03142462502,
+    "requests_per_second": 542.3182630865683,
+    "texts_per_second": 542.3182630865683,
+    "latency_ms": {
+      "min": 5.853708018548787,
+      "mean": 36.87215988352182,
+      "p50": 15.948957996442914,
+      "p95": 125.33987268107,
+      "p99": 211.76267256261778,
+      "max": 2251.305541023612
+    }
+  },
+  "windows": [
+    {
+      "window_index": 0,
+      "start_second": 0,
+      "end_second": 60,
+      "complete_window": true,
+      "request_count": 35405,
+      "success_requests": 35405,
+      "failed_requests": 0,
+      "error_rate_pct": 0.0,
+      "latency_ms": {
+        "min": 5.853708018548787,
+        "mean": 33.860683295209746,
+        "p50": 14.885207987390459,
+        "p95": 115.20766597241159,
+        "p99": 189.14313830668092,
+        "max": 489.8087500478141
+      }
+    },
+    {
+      "window_index": 1,
+      "start_second": 60,
+      "end_second": 120,
+      "complete_window": true,
+      "request_count": 33553,
+      "success_requests": 33553,
+      "failed_requests": 0,
+      "error_rate_pct": 0.0,
+      "latency_ms": {
+        "min": 6.426625011954457,
+        "mean": 35.76183005182789,
+        "p50": 15.261334017850459,
+        "p95": 121.94842521566886,
+        "p99": 203.53543530916815,
+        "max": 485.26704200776294
+      }
+    },
+    {
+      "window_index": 2,
+      "start_second": 120,
+      "end_second": 180,
+      "complete_window": true,
+      "request_count": 33794,
+      "success_requests": 33794,
+      "failed_requests": 0,
+      "error_rate_pct": 0.0,
+      "latency_ms": {
+        "min": 6.685457949060947,
+        "mean": 35.51501152983033,
+        "p50": 15.431395469931886,
+        "p95": 121.12825393269303,
+        "p99": 202.5133290584199,
+        "max": 500.3634580061771
+      }
+    },
+    {
+      "window_index": 3,
+      "start_second": 180,
+      "end_second": 240,
+      "complete_window": true,
+      "request_count": 36087,
+      "success_requests": 36087,
+      "failed_requests": 0,
+      "error_rate_pct": 0.0,
+      "latency_ms": {
+        "min": 6.889083015266806,
+        "mean": 33.232929895583425,
+        "p50": 14.582458010409027,
+        "p95": 115.04694210598237,
+        "p99": 188.61210135044527,
+        "max": 611.8664999958128
+      }
+    },
+    {
+      "window_index": 4,
+      "start_second": 240,
+      "end_second": 300,
+      "complete_window": true,
+      "request_count": 33815,
+      "success_requests": 33815,
+      "failed_requests": 0,
+      "error_rate_pct": 0.0,
+      "latency_ms": {
+        "min": 6.692124996334314,
+        "mean": 35.48046286817864,
+        "p50": 15.949833032209426,
+        "p95": 121.73359112348406,
+        "p99": 203.10657497728252,
+        "max": 539.1415830235928
+      }
+    },
+    {
+      "window_index": 5,
+      "start_second": 300,
+      "end_second": 360,
+      "complete_window": true,
+      "request_count": 32548,
+      "success_requests": 32548,
+      "failed_requests": 0,
+      "error_rate_pct": 0.0,
+      "latency_ms": {
+        "min": 7.016792020294815,
+        "mean": 36.85848087936395,
+        "p50": 16.174250515177846,
+        "p95": 124.52768569055478,
+        "p99": 209.40482577483613,
+        "max": 541.0902500152588
+      }
+    },
+    {
+      "window_index": 6,
+      "start_second": 360,
+      "end_second": 420,
+      "complete_window": true,
+      "request_count": 31771,
+      "success_requests": 31771,
+      "failed_requests": 0,
+      "error_rate_pct": 0.0,
+      "latency_ms": {
+        "min": 6.200874981004745,
+        "mean": 37.77197017776597,
+        "p50": 16.71624998562038,
+        "p95": 128.30064599984325,
+        "p99": 210.56970799691035,
+        "max": 589.9520830134861
+      }
+    },
+    {
+      "window_index": 7,
+      "start_second": 420,
+      "end_second": 480,
+      "complete_window": true,
+      "request_count": 31424,
+      "success_requests": 31424,
+      "failed_requests": 0,
+      "error_rate_pct": 0.0,
+      "latency_ms": {
+        "min": 6.892292003612965,
+        "mean": 38.19115836367539,
+        "p50": 16.25820845947601,
+        "p95": 129.7435106971533,
+        "p99": 211.14096697827338,
+        "max": 546.3508340180852
+      }
+    },
+    {
+      "window_index": 8,
+      "start_second": 480,
+      "end_second": 540,
+      "complete_window": true,
+      "request_count": 32672,
+      "success_requests": 32672,
+      "failed_requests": 0,
+      "error_rate_pct": 0.0,
+      "latency_ms": {
+        "min": 6.632208009250462,
+        "mean": 36.71170112053837,
+        "p50": 15.93429152853787,
+        "p95": 126.19178315508151,
+        "p99": 211.7578339105239,
+        "max": 571.1150839924812
+      }
+    },
+    {
+      "window_index": 9,
+      "start_second": 540,
+      "end_second": 600,
+      "complete_window": true,
+      "request_count": 24319,
+      "success_requests": 24319,
+      "failed_requests": 0,
+      "error_rate_pct": 0.0,
+      "latency_ms": {
+        "min": 6.876332976389676,
+        "mean": 49.3182755378164,
+        "p50": 20.146708993706852,
+        "p95": 164.94942113058636,
+        "p99": 342.0078694657422,
+        "max": 2251.305541023612
+      }
+    },
+    {
+      "window_index": 10,
+      "start_second": 600,
+      "end_second": 660,
+      "complete_window": false,
+      "request_count": 20,
+      "success_requests": 20,
+      "failed_requests": 0,
+      "error_rate_pct": 0.0,
+      "latency_ms": {
+        "min": 13.381499971728772,
+        "mean": 92.04162494279444,
+        "p50": 59.6709375095088,
+        "p95": 287.5000582978829,
+        "p99": 382.7403444790978,
+        "max": 406.5504160244018
+      }
+    }
+  ],
+  "drift": {
+    "first_window_index": 0,
+    "last_window_index": 9,
+    "p95_latency_drift_pct": 43.17573378327643,
+    "error_rate_drift_pct": 0.0
+  },
+  "rubric": {
+    "passed": true,
+    "checks": [
+      {
+        "name": "overall_error_rate",
+        "passed": true,
+        "observed": 0.0,
+        "threshold": 0.1,
+        "unit": "pct"
+      },
+      {
+        "name": "worst_window_p95_latency",
+        "passed": true,
+        "observed": 164.94942113058636,
+        "threshold": 250.0,
+        "unit": "ms"
+      },
+      {
+        "name": "p95_latency_drift",
+        "passed": true,
+        "observed": 43.17573378327643,
+        "threshold": 100.0,
+        "unit": "pct"
+      }
+    ]
+  }
+}

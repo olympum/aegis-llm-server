@@ -135,11 +135,11 @@ Scoring scale:
 | Phase 2: Proxy Integration | External (deferred) | Deferred | 0 | Managed by caller-facing gateway/consumer integration tracks |
 | Phase 3: Legacy Cutover | External (deferred) | Deferred | 0 | Managed by upstream consumer rollout/cutover tracks |
 | Acceptance metric 1 (contract conformance) | Local | Complete | 100 | Contract + API tests aligned |
-| Acceptance metric 2 (reliability) | Local | Mostly complete | 80 | Error handling/hardening + health endpoints in place; no long-run reliability report artifact yet |
+| Acceptance metric 2 (reliability) | Local | Complete | 100 | `scripts/soak_embeddings.py`, `docs/perf/embeddings-reliability-soak-2026-03-06.md`, `docs/perf/results/deterministic-soak-10m-20260306.json` |
 | Acceptance metric 3 (performance) | Local | Complete | 100 | p50/p95 and throughput baselines published in `docs/perf/embeddings-baseline-2026-02-22.md` |
 | Acceptance metric 4 (de-dup completion) | External (deferred) | Deferred | 0 | Depends on external legacy code retirement |
 
-Local-only weighted readiness (Phase 0 + Phase 1 + local acceptance metrics): `96/100`.
+Local-only weighted readiness (Phase 0 + Phase 1 + local acceptance metrics): `100/100`.
 
 ## Deferred External Tracks
 
@@ -149,17 +149,18 @@ The following work is intentionally pushed out of this repo:
 2. corp load balancer/NAP-specific integration concerns,
 3. cross-service cutover and rollback orchestration.
 
-## Next Local Work Item (Selected)
+## Latest Local Completion (2026-03-06)
 
-Publish a reliability soak and robustness report artifact.
+Completed reliability soak and robustness artifact publication.
 
-Deliverables:
+Evidence:
 
-1. Add a repeatable soak script/profile for sustained embeddings load (for example 10-30 minutes).
-2. Capture error-rate and latency drift over time as a report under `docs/perf/`.
-3. Define a local reliability pass/fail rubric (for example error-rate threshold + tail latency guardrail).
+1. Repeatable soak harness added in `scripts/soak_embeddings.py`.
+2. Published soak report in `docs/perf/embeddings-reliability-soak-2026-03-06.md`.
+3. Raw run artifact captured in `docs/perf/results/deterministic-soak-10m-20260306.json`.
+4. Reliability pass/fail guardrails documented with explicit thresholds.
 
-Exit gate for this item:
+Current local status:
 
-1. At least one soak run report is published with reproducible commands.
-2. Reliability guardrails are explicitly documented for future regressions.
+1. No additional local-only implementation gap is currently selected in this repo.
+2. Remaining deferred work stays in the external integration and cutover tracks above.
