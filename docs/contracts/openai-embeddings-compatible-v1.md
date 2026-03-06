@@ -92,6 +92,8 @@ Service role:
 2. `AEGIS_LLM_SERVER_EMBEDDING__BACKEND=sentence_transformers` uses an in-process local model runtime backend.
 3. `AEGIS_LLM_SERVER_EMBEDDING__TRUST_REMOTE_CODE` controls model-specific remote-code loading in sentence-transformers (default `true` for Nomic compatibility).
 4. This contract intentionally does not define inter-service forwarding behavior; caller-side routing is owned by `aegis-llm-proxy`.
+5. This contract also does not define inter-service authentication policy; when `aegis-llm-proxy`
+   calls this service, auth is expected to be handled by deployment/runtime boundaries if required.
 
 ### Input limit semantics
 

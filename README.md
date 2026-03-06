@@ -23,6 +23,20 @@ Architecture note:
 - `aegis-llm-server` is the local model runtime.
 - `aegis-llm-proxy` is the caller-facing router/gateway.
 
+## Service Auth Boundary
+
+`aegis-llm-server` does not currently implement inbound bearer/OIDC/SigV4
+authentication for service-to-service calls.
+
+Current expectation:
+- gateway/provider auth policy lives in `aegis-llm-proxy`
+- proxy -> server traffic is trusted by deployment topology unless infra says otherwise
+- when auth is required between services, enforce it at the runtime boundary
+  (for example sidecar, service mesh, internal ingress, or IAM-gated frontend)
+
+This keeps `aegis-llm-server` focused on local embeddings runtime behavior
+rather than gateway or identity policy.
+
 ## Install
 
 From source (recommended):
