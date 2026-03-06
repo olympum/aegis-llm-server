@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+from unittest.mock import patch
 
 from fastapi.testclient import TestClient
 import pytest
@@ -122,6 +123,33 @@ def test_embeddings_disabled_returns_503(monkeypatch):
         )
         assert response.status_code == 503
         assert response.json()["error"]["code"] == "upstream_error"
+
+
+def test_backend_init_failure_keeps_service_up_with_error_health():
+    with patch("aegis_llm_server.main.create_embedding_backend", side_effect=RuntimeError("boom")):
+        with TestClient(create_app()) as client:
+            health = client.get("/health")
+            assert health.status_code == 200
+            assert health.json() == {
+                "status": "error",
+                "service": "aegis-llm-server",
+                "version": "0.1.0",
+                "backend": "none",
+                "embedding_enabled": True,
+            }
+
+            models = client.get("/v1/models")
+            assert models.status_code == 200
+            assert models.json()["data"] == []
+
+            embeddings = client.post(
+                "/v1/embeddings",
+                json={"model": "nomic-embed-text", "input": "hello"},
+            )
+            assert embeddings.status_code == 503
+            body = embeddings.json()
+            assert body["error"]["code"] == "upstream_error"
+            assert body["error"]["message"] == "Embedding backend is unavailable."
 
 
 def test_embeddings_batch_size_limit_returns_400(monkeypatch):

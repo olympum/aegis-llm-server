@@ -36,7 +36,11 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     app.state.embeddings_metrics = telemetry_runtime.embeddings_metrics
 
     if settings.embedding.enabled:
-        app.state.embedding_backend = create_embedding_backend(settings)
+        try:
+            app.state.embedding_backend = create_embedding_backend(settings)
+        except Exception:
+            logging.exception("Embedding backend initialization failed; continuing in degraded mode")
+            app.state.embedding_backend = None
     else:
         app.state.embedding_backend = None
 
