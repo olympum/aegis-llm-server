@@ -270,15 +270,19 @@ uv run python scripts/soak_embeddings.py \
 Published reliability soak report:
 - `docs/perf/embeddings-reliability-soak-2026-03-06.md`
 
-## More Docs
+## Docs Map
 
-- Contract: `docs/contracts/openai-embeddings-compatible-v1.md`
-- MAN page: `docs/man/aegis-llm-server.1`
+Primary guidance:
+- Operator guide and configuration: `README.md`
+- HTTP contract: `docs/contracts/openai-embeddings-compatible-v1.md`
+- CLI/operator reference: `docs/man/aegis-llm-server.1`
+- Environment template: `.env.example`
+
+Supplemental and historical records:
 - Phased plan + status scorecard: `docs/plans/aegis-llm-server-phased-plan.md`
-- Performance baseline report: `docs/perf/embeddings-baseline-2026-02-22.md`
-- Reliability soak report: `docs/perf/embeddings-reliability-soak-2026-03-06.md`
-- ADR: `docs/adr/0001-language-python-first.md`
-- Template: `.env.example`
+- Performance baseline report (dated local benchmark artifact): `docs/perf/embeddings-baseline-2026-02-22.md`
+- Reliability soak report (dated local soak artifact): `docs/perf/embeddings-reliability-soak-2026-03-06.md`
+- ADR 0001 (architectural decision record): `docs/adr/0001-language-python-first.md`
 
 ## Roadmap Scope Status
 

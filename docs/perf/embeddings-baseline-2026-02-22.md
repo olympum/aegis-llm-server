@@ -1,5 +1,9 @@
 # Embeddings Performance Baseline (2026-02-22)
 
+This document is a dated local benchmark artifact, not primary operator guidance.
+
+Use [README.md](../../README.md) for current setup and configuration guidance. Use [docs/contracts/openai-embeddings-compatible-v1.md](../contracts/openai-embeddings-compatible-v1.md) for the normative HTTP contract.
+
 This document publishes reproducible local performance baselines for
 `POST /v1/embeddings`.
 
@@ -73,8 +77,9 @@ uv run python scripts/bench_embeddings.py \
 1. These values are local-machine baselines, not absolute SLO guarantees.
 2. Tail latency is workload and hardware sensitive; compare future runs using
    the same profile definitions above.
-3. `model` in requests uses compatibility aliases (for example
+3. This report is historical and environment-specific; do not treat it as the default expected production profile.
+4. `model` in requests uses compatibility aliases (for example
    `nomic-embed-text`); server-side model loading is controlled by
    `AEGIS_LLM_SERVER_EMBEDDING__MODEL_NAME`.
-4. Nomic sentence-transformers path requires `AEGIS_LLM_SERVER_EMBEDDING__TRUST_REMOTE_CODE=true`
+5. Nomic sentence-transformers path requires `AEGIS_LLM_SERVER_EMBEDDING__TRUST_REMOTE_CODE=true`
    and local extra deps (`pip install -e ".[local]"`).

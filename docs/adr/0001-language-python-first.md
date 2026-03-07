@@ -3,6 +3,10 @@
 Date: 2026-02-22
 Status: Accepted
 
+This ADR is a historical architectural decision record.
+
+Use [README.md](../../README.md), [docs/contracts/openai-embeddings-compatible-v1.md](../contracts/openai-embeddings-compatible-v1.md), and [docs/man/aegis-llm-server.1](../man/aegis-llm-server.1) as current primary guidance for runtime behavior and operator-facing usage.
+
 ## Context
 
 `aegis-llm-server` is a local model-serving runtime focused on embeddings.

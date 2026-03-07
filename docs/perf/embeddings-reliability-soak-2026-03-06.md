@@ -1,5 +1,9 @@
 # Embeddings Reliability Soak Report (2026-03-06)
 
+This document is a dated local soak artifact, not primary operator guidance.
+
+Use [README.md](../../README.md) for current setup and configuration guidance. Use [docs/contracts/openai-embeddings-compatible-v1.md](../contracts/openai-embeddings-compatible-v1.md) for the normative HTTP contract.
+
 This document publishes a repeatable sustained-load reliability run for
 `POST /v1/embeddings`.
 
@@ -43,6 +47,8 @@ The local reliability pass/fail rubric for this deterministic soak profile is:
 
 These guardrails leave room for normal local-machine variance while still
 catching sustained regressions in error rate or tail latency.
+
+This rubric is specific to this local deterministic soak profile and should not be read as a general service-wide SLO.
 
 ## Result
 

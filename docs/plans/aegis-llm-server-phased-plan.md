@@ -2,6 +2,10 @@
 
 Last updated: 2026-02-22
 
+This document is a historical planning and status artifact.
+
+Use [README.md](../../README.md), [docs/contracts/openai-embeddings-compatible-v1.md](../contracts/openai-embeddings-compatible-v1.md), and [docs/man/aegis-llm-server.1](../man/aegis-llm-server.1) as current primary guidance for operating or integrating with the service.
+
 ## Execution Rebaseline (2026-02-22)
 
 This repository now prioritizes local, cloud-agnostic deliverables only.
