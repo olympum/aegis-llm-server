@@ -59,6 +59,8 @@ Service role:
 
 1. Returns advertised embedding model aliases.
 2. Returns an empty list when embeddings are disabled.
+3. Returned IDs are compatibility identifiers accepted by this service for the current configuration.
+4. Returned IDs do not imply multiple backend models are loaded simultaneously.
 
 ## Endpoint: `POST /v1/embeddings`
 
@@ -127,6 +129,12 @@ Backend timeout behavior:
   }
 }
 ```
+
+### Usage field semantics
+
+1. `usage.prompt_tokens` is currently an approximate count derived from whitespace-delimited input word counts.
+2. `usage.total_tokens` currently equals `usage.prompt_tokens`.
+3. These fields are intended for lightweight diagnostics and compatibility, not billing-grade accounting.
 
 ### Error responses
 

@@ -193,6 +193,17 @@ Accepted public model IDs currently include:
 Important:
 - accepted aliases map to the configured local backend model (`EMBEDDING__MODEL_NAME`)
 - aliases are compatibility identifiers, not separate loaded models
+- `/v1/models` lists accepted compatibility IDs for the current embeddings configuration
+- `/v1/models` does not prove that distinct backend models are loaded or selectable independently
+
+## Usage Accounting
+
+`usage.prompt_tokens` and `usage.total_tokens` in `POST /v1/embeddings` responses are currently approximate.
+
+Current behavior:
+- values are estimated from whitespace-delimited input word counts
+- `total_tokens` currently matches `prompt_tokens`
+- these fields are best treated as lightweight diagnostics, not billing-grade token counts
 
 ## Error Semantics
 
@@ -277,6 +288,7 @@ Implemented locally:
 - embeddings contract/runtime/hardening
 - local embeddings backends (deterministic control + in-process model runtime)
 - telemetry hooks and metrics/traces export support
+- approximate request usage accounting based on whitespace-delimited input counts
 
 Deferred to external consumer/gateway tracks:
 - proxy/corp/NAP integration and routing rollout

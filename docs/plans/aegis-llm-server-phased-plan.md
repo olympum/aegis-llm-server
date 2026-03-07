@@ -61,11 +61,11 @@ Deliverables:
 
 1. Contract doc for `/health`, `/v1/models`, `/v1/embeddings`.
 2. Canonical error envelope and status code behavior.
-3. Conformance fixtures for success and failure cases.
+3. Conformance tests for success and failure cases.
 
 Exit gate:
 
-1. Contract fixtures pass.
+1. Contract-oriented tests pass.
 2. Caller expectations documented.
 
 ## Phase 1: Local Runtime Baseline
@@ -134,7 +134,7 @@ Scoring scale:
 | Phase 1: Local Runtime Baseline | Local | Complete | 100 | Backends + tests in `aegis_llm_server/backends/*` and `tests/unit/*`; perf baseline published in `docs/perf/embeddings-baseline-2026-02-22.md` |
 | Phase 2: Proxy Integration | External (deferred) | Deferred | 0 | Managed by caller-facing gateway/consumer integration tracks |
 | Phase 3: Legacy Cutover | External (deferred) | Deferred | 0 | Managed by upstream consumer rollout/cutover tracks |
-| Acceptance metric 1 (contract conformance) | Local | Complete | 100 | Contract + API tests aligned |
+| Acceptance metric 1 (contract conformance) | Local | Complete | 100 | Contract + API tests aligned; no standalone fixture corpus is maintained in this repo |
 | Acceptance metric 2 (reliability) | Local | Complete | 100 | `scripts/soak_embeddings.py`, `docs/perf/embeddings-reliability-soak-2026-03-06.md`, `docs/perf/results/deterministic-soak-10m-20260306.json` |
 | Acceptance metric 3 (performance) | Local | Complete | 100 | p50/p95 and throughput baselines published in `docs/perf/embeddings-baseline-2026-02-22.md` |
 | Acceptance metric 4 (de-dup completion) | External (deferred) | Deferred | 0 | Depends on external legacy code retirement |
