@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import sys
 from types import ModuleType
 
@@ -32,8 +33,7 @@ def test_sentence_transformers_backend_missing_dependency(monkeypatch):
         )
 
 
-@pytest.mark.asyncio
-async def test_factory_builds_sentence_transformers_backend_with_fake_module(monkeypatch):
+def test_factory_builds_sentence_transformers_backend_with_fake_module(monkeypatch):
     fake_module = ModuleType("sentence_transformers")
     created_models: list[object] = []
 
@@ -83,7 +83,7 @@ async def test_factory_builds_sentence_transformers_backend_with_fake_module(mon
     assert "nomic-embed-text" in backend.advertised_models()
     assert "custom/embed-model" in backend.advertised_models()
 
-    vectors = await backend.embed(["first", "second"])
+    vectors = asyncio.run(backend.embed(["first", "second"]))
 
     assert vectors == [[1.0, 2.0, 3.0], [1.0, 2.0, 3.0]]
     assert len(created_models) == 1
