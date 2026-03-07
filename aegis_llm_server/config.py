@@ -7,6 +7,8 @@ from typing import Literal
 from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from aegis_llm_server import SERVICE_NAME, __version__
+
 
 DEFAULT_EMBEDDING_ALIASES = (
     "nomic-embed-text",
@@ -58,8 +60,8 @@ class Settings(BaseSettings):
         env_nested_delimiter="__",
     )
 
-    service_name: str = Field(default="aegis-llm-server")
-    service_version: str = Field(default="0.1.0")
+    service_name: str = Field(default=SERVICE_NAME)
+    service_version: str = Field(default=__version__)
 
     server: ServerConfig = Field(default_factory=ServerConfig)
     embedding: EmbeddingConfig = Field(default_factory=EmbeddingConfig)

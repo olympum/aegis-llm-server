@@ -1,7 +1,7 @@
 [project]
 name = "aegis-llm-server"
 version = "0.1.0"
-description = "OpenAI-compatible local LLM server for embeddings and local inference workloads."
+description = "OpenAI-compatible local embeddings server."
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [

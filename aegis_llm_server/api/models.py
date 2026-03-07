@@ -6,6 +6,8 @@ from typing import Literal
 
 from pydantic import BaseModel
 
+from aegis_llm_server import SERVICE_NAME, __version__
+
 
 class EmbeddingRequest(BaseModel):
     """OpenAI-compatible embeddings request."""
@@ -45,7 +47,7 @@ class ModelInfo(BaseModel):
     id: str
     object: Literal["model"] = "model"
     created: int
-    owned_by: str = "aegis-llm-server"
+    owned_by: str = SERVICE_NAME
 
 
 class ModelListResponse(BaseModel):
@@ -59,8 +61,8 @@ class HealthResponse(BaseModel):
     """Health response."""
 
     status: Literal["ok", "error"] = "error"
-    service: str = "aegis-llm-server"
-    version: str = "0.1.0"
+    service: str = SERVICE_NAME
+    version: str = __version__
     backend: str = "none"
     embedding_enabled: bool = False
 
