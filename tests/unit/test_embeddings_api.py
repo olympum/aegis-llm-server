@@ -85,6 +85,21 @@ def test_embeddings_multi_input_success():
         assert body["usage"]["prompt_tokens"] == 5
 
 
+def test_embeddings_usage_tokens_follow_whitespace_split_behavior():
+    with TestClient(create_app()) as client:
+        response = client.post(
+            "/v1/embeddings",
+            json={
+                "model": "nomic-embed-text",
+                "input": ["hello   world", "\nspaced\twords  here  "],
+            },
+        )
+        assert response.status_code == 200
+        body = response.json()
+        assert body["usage"]["prompt_tokens"] == 5
+        assert body["usage"]["total_tokens"] == 5
+
+
 def test_embeddings_unknown_model_rejected():
     with TestClient(create_app()) as client:
         response = client.post(
@@ -226,6 +241,17 @@ def test_models_backend_unavailable_returns_empty_list():
         response = client.get("/v1/models")
         assert response.status_code == 200
         assert response.json()["data"] == []
+
+
+def test_models_list_includes_configured_backend_model_name(monkeypatch):
+    monkeypatch.setenv("AEGIS_LLM_SERVER_EMBEDDING__MODEL_NAME", "custom/embed-model")
+    reset_settings()
+    with TestClient(create_app()) as client:
+        response = client.get("/v1/models")
+        assert response.status_code == 200
+        ids = [item["id"] for item in response.json()["data"]]
+        assert "nomic-embed-text" in ids
+        assert "custom/embed-model" in ids
 
 
 def test_embeddings_backend_unavailable_returns_503():

@@ -41,6 +41,20 @@ def test_telemetry_settings_from_env(monkeypatch):
     reset_settings()
 
 
+def test_telemetry_headers_from_env(monkeypatch):
+    monkeypatch.setenv("AEGIS_LLM_SERVER_TELEMETRY__OTLP_HEADERS__AUTHORIZATION", "Bearer token")
+    monkeypatch.setenv("AEGIS_LLM_SERVER_TELEMETRY__OTLP_HEADERS__X_SCOPE_ORGID", "tenant-a")
+    reset_settings()
+
+    settings = get_settings()
+    assert settings.telemetry.otlp_headers == {
+        "authorization": "Bearer token",
+        "x_scope_orgid": "tenant-a",
+    }
+
+    reset_settings()
+
+
 def test_app_starts_with_telemetry_enabled(monkeypatch):
     monkeypatch.setenv("AEGIS_LLM_SERVER_TELEMETRY__ENABLED", "true")
     monkeypatch.setenv("AEGIS_LLM_SERVER_TELEMETRY__OTLP_ENDPOINT", "http://127.0.0.1:65535")
